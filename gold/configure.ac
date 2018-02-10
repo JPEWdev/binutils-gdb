@@ -85,21 +85,6 @@ AC_ARG_ENABLE(gold,
 AC_SUBST(install_as_default)
 AC_SUBST(installed_linker)
 
-dnl For now threads are a configure time option.
-AC_ARG_ENABLE([threads],
-[  --enable-threads        multi-threaded linking],
-[case "${enableval}" in
-  yes | "") threads=yes ;;
-  no) threads=no ;;
-  *) threads=yes ;;
- esac],
-[threads=no])
-if test "$threads" = "yes"; then
-  AC_DEFINE(ENABLE_THREADS, 1,
-	    [Define to do multi-threaded linking])
-fi
-AM_CONDITIONAL(THREADS, test "$threads" = "yes")
-
 AC_ARG_ENABLE([plugins],
 [  --enable-plugins        linker plugins],
 [case "${enableval}" in
@@ -569,6 +554,14 @@ fi
 
 # Link in zlib if we can.  This allows us to write compressed sections.
 AM_ZLIB
+
+# Check for pthreads. If available, enable multi-threaded linking
+AX_PTHREAD([threads=yes], [threads=no])
+if test "$threads" = "yes"; then
+  AC_DEFINE(ENABLE_THREADS, 1,
+	    [Define to do multi-threaded linking])
+fi
+AM_CONDITIONAL(THREADS, test "$threads" = "yes")
 
 dnl We have to check these in C, not C++, because autoconf generates
 dnl tests which have no type information, and current glibc provides
